@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧑‍🏫 EduDash — Modern Role-Based Coaching Platform
 
-## Getting Started
+EduDash is a full-stack, role-based coaching platform built using **Next.js 14 App Router**, **Prisma**, and **NextAuth.js**, designed to serve two main user types — **Teachers** and **Students**. The app includes dashboards, class-based content uploads, test creation, performance tracking, and more.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), Tailwind CSS, TypeScript, Shadcn/UI, Lucide Icons
+- **Backend**: Prisma ORM, PostgreSQL, Server Actions & API Routes
+- **Auth**: NextAuth.js (Email + OAuth - GitHub, Google)
+- **Upload**: Cloudinary (planned)
+- **Email**: Resend (via SMTP planned)
+
+---
+
+## ✅ Completed Features
+
+### 🔐 Authentication System (✅ Done)
+- [x] Email/password login (using Credentials Provider)
+- [x] OAuth login (Google, GitHub)
+- [x] Email verification system using **Resend**
+- [x] JWT-based session with role (Student/Teacher)
+- [x] Role-based middleware redirection
+- [x] Secure sign out logic
+- [x] Forgot password (structure implemented, email part pending)
+- [x] Prevent unauthorized dashboard access
+- [x] Dynamic login redirect based on role
+
+### 🧑‍🏫 Teacher Panel - Phase 1 (🛠 In Progress)
+- [x] Role stored in DB using Prisma Enum (`STUDENT`, `TEACHER`, `ADMIN`)
+- [x] Approved teacher logic via `approved` boolean
+- [x] Class creation form with unique class code
+- [ ] View and manage created classes
+- [ ] Upload lectures and notes to class/subject
+- [ ] Create and assign tests to specific classes
+- [ ] See student performance & analytics
+
+### 🎓 Student Panel - Phase 1 (🛠 In Progress)
+- [x] Role-based dashboard UI
+- [ ] Join class using unique code
+- [ ] View lectures and notes
+- [ ] Attempt tests and view score breakdown
+- [ ] Track progress & analytics
+
+---
+
+## 📁 Folder Structure (Simplified)
+
+```
+/app
+  /auth
+    /login
+    /register
+  /student
+    /dashboard
+    /classes
+  /teacher
+    /dashboard
+    /classes
+    /lectures
+    /tests
+
+/lib
+  db.ts
+  auth.ts
+  mail.ts
+  tokens.ts
+
+/actions
+  register.ts
+  login.ts
+  create-class.ts
+
+/constants
+  teacher.ts
+
+/schemas
+  login.ts
+  register.ts
+  createClass.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔜 Upcoming Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [ ] Subject-wise class management
+- [ ] Video lecture upload and streaming (Cloudinary or ImageKit)
+- [ ] File upload for notes
+- [ ] Automated test creation and evaluation
+- [ ] Notifications and announcements panel
+- [ ] Admin panel for approving teachers
+- [ ] Mobile responsiveness
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧪 Local Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repo  
+2. Set up your `.env` file:
+```env
+DATABASE_URL=postgresql://...
+RESEND_API_KEY=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Run:
+```bash
+npm install
+npx prisma db push
+npm run dev
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📊 Progress Tracker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Module            | Status          |
+|-------------------|------------------|
+| Auth              | ✅ Complete      |
+| Middleware        | ✅ Complete      |
+| Role Management   | ✅ Complete      |
+| Teacher Dashboard | 🛠 In Progress   |
+| Student Dashboard | 🛠 In Progress   |
+| File Upload       | 🚧 Planned       |
+| Test System       | 🚧 Planned       |
+| Admin Panel       | 🚧 Planned       |
+
+---
+
+## ✍️ Author
+
+**Aayush Raj** — Dual Degree CSE, NIT Hamirpur  
+Feel free to contribute or suggest ideas!
+
+---

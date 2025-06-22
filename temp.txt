@@ -1,0 +1,3 @@
+5gEpmxNGg5KXVQVe
+aayushardy
+mongodb+srv://aayushardy:<db_password>@cluster0.upkzvjl.mongodb.net/
