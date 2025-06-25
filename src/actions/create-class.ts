@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { CreateClassSchema } from "@/schemas";
 import * as z from "zod";
 import { auth } from "@/auth"; // adjust based on your NextAuth integration
+import { sendClassCode } from "@/lib/mail";
 
 export const createClass = async (
   values: z.infer<typeof CreateClassSchema>
@@ -38,7 +39,11 @@ export const createClass = async (
         },
       },
     });
-
+    if(!user.email) return {error:'user not found'};
+    sendClassCode(
+      user.email,
+      code
+    )
     return { success: `Class "${createdClass.name}" created with code ${code}` };
   } catch (error) {
     return { error: "Failed to create class." };

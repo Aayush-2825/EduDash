@@ -14,7 +14,7 @@ export default async function Dashboard({ children }: { children: React.ReactNod
   return (
     <SidebarProvider defaultOpen={defaultOpen} >
       <AppSidebar Option={dashboardTeacherMenu} />
-      <main  className="flex flex-col w-full h-screen overflow-hidden">
+      <main  className="flex flex-col w-full h-screen overflow-y-hidden ">
         <Navbar />
         {children}
       </main>

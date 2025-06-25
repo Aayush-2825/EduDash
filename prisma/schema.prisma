@@ -23,8 +23,7 @@ model User {
   teacherClasses TeacherClass[] @relation("TeacherClasses")
   studentClasses Class[]        @relation("StudentClass")
 
-  lectures Lecture[]
-  notes    Note[]
+  files File[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,38 +81,36 @@ model Class {
   students    User[]         @relation("StudentClass")
   subjects    Subject[]
   teachers    TeacherClass[]
-  code   String         @unique
+  code        String         @unique
+  
 }
 
 model Subject {
-  id       String    @id @default(cuid())
-  name     String
-  classId  String
-  class    Class     @relation(fields: [classId], references: [id])
-  lectures Lecture[]
-  notes    Note[]
+  id        String   @id @default(cuid())
+  name      String
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  files     File[]
+  
 }
 
-model Lecture {
-  id        String   @id @default(cuid())
-  title     String
-  videoUrl  String
-  subjectId String
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  teacherId String
-  teacher   User     @relation(fields: [teacherId], references: [id]) 
-  createdAt DateTime @default(now())
+model File {
+  id         String   @id @default(cuid())
+  title      String
+  fileUrl    String
+  fileType   FileType
+  publicId  String
+  subjectId  String
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacherId  String
+  teacher    User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
-model Note {
-  id        String   @id @default(cuid())
-  title     String
-  fileUrl   String
-  subjectId String
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  teacherId String
-  teacher   User     @relation(fields: [teacherId], references: [id])
-  createdAt DateTime @default(now())
+enum FileType {
+  IMAGE
+  VIDEO
+  NOTE
 }
 
 model TeacherClass {
@@ -121,7 +118,8 @@ model TeacherClass {
   teacherId String
   classId   String
   // teacher   User     @relation(fields: [teacherId], references: [id])
-  teacher   User   @relation("TeacherClasses", fields: [teacherId], references: [id])
+  teacher   User   @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
 
-  class Class @relation(fields: [classId], references: [id])
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 }
+

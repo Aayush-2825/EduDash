@@ -20,7 +20,17 @@ export default async function RootLayout({ children }: {
   return (
     <SessionProvider session={session}>
       <html lang="en" suppressHydrationWarning>
-        <head />
+        <head>
+        {/* Cloudinary Video Player CSS and JS */}
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/cloudinary-video-player@1.9.13/dist/cld-video-player.min.css"
+        />
+        <script
+          src="https://unpkg.com/cloudinary-video-player@1.9.13/dist/cld-video-player.min.js"
+          defer
+        ></script>
+      </head>
         <body>
           <ThemeProvider
             attribute="class"

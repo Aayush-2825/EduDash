@@ -57,3 +57,14 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
   });
 };
+
+export const sendClassCode = async (email: string,code: string) => {
+  const classCode = code;
+
+  await transporter.sendMail({
+    from: `"Acme" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Your class code for your new generated Class ",
+    html: `<p>Your class code is ${classCode}</p>`,
+  });
+};

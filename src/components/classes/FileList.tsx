@@ -1,0 +1,143 @@
+"use client";
+
+import Link from "next/link";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { FaFilePdf, FaFileAlt, FaImage, FaVideo } from "react-icons/fa";
+
+type File = {
+  id: string;
+  title: string;
+  fileUrl: string;
+  createdAt: string;
+  teacher: {
+    name: string | null;
+    image?: string | null;
+  };
+};
+
+const getFileType = (url: string) => {
+  if (url.match(/\.(mp4|mov|avi)$/)) return "Video";
+  if (url.match(/\.(jpg|jpeg|png|webp)$/)) return "Image";
+  if (url.match(/\.pdf$/)) return "PDF";
+  return "Other";
+};
+
+const getIcon = (url: string) => {
+  if (url.match(/\.(mp4|mov|avi)$/))
+    return <FaVideo className="text-xl text-blue-500" />;
+  if (url.match(/\.(jpg|jpeg|png|webp)$/))
+    return <FaImage className="text-xl text-green-500" />;
+  if (url.match(/\.pdf$/))
+    return <FaFilePdf className="text-xl text-red-500" />;
+  return <FaFileAlt className="text-xl text-gray-500" />;
+};
+
+export const FileList = ({ files }: { files: File[] }) => {
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [visibleCount, setVisibleCount] = useState(10);
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  const sortedFiles = useMemo(() => {
+    return [...files].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [files, sortOrder]);
+
+  const filesToShow = useMemo(
+    () => sortedFiles.slice(0, visibleCount),
+    [sortedFiles, visibleCount]
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + 10, sortedFiles.length));
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [sortedFiles.length]);
+
+  return (
+    <div className="p-4 max-h-[75vh] overflow-y-auto">
+      {/* Sort Dropdown */}
+      <div className="mb-6 flex justify-end">
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
+          className="px-4 py-2 rounded-md border text-sm dark:bg-gray-800 dark:text-white bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="newest">Sort: Newest First</option>
+          <option value="oldest">Sort: Oldest First</option>
+        </select>
+      </div>
+
+      {/* Masonry Layout */}
+      <div className="flex flex-wrap  gap-6">
+        {filesToShow.map((file) => (
+          <Link
+            key={file.id}
+            href={`/watch/${file.id}`}
+            className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
+          >
+            <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              {file.fileUrl.match(/\.(mp4|mov|avi)$/) ? (
+                <video
+                  className="w-full h-full object-cover"
+                  src={file.fileUrl}
+                  muted
+                  preload="metadata"
+                />
+              ) : file.fileUrl.match(/\.(jpg|jpeg|png|webp)$/) ? (
+                <img
+                  src={file.fileUrl}
+                  alt={file.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="text-gray-600 dark:text-white p-6">
+                  {getIcon(file.fileUrl)}
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 space-y-1">
+              <h3 className="text-sm font-medium text-gray-800 dark:text-white line-clamp-2">
+                {file.title}
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {file.teacher?.name || "Unknown"}
+              </p>
+              <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500">
+                <span>
+                  {new Intl.DateTimeFormat("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }).format(new Date(file.createdAt))}
+                </span>
+                <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 text-[10px] font-medium">
+                  {getFileType(file.fileUrl)}
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Loader Placeholder */}
+      <div ref={loaderRef} className="py-6 text-center text-gray-400 text-sm">
+        {visibleCount < sortedFiles.length
+          ? "Loading more..."
+          : "No more files"}
+      </div>
+    </div>
+  );
+};

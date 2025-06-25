@@ -9,8 +9,8 @@ EduDash is a full-stack, role-based coaching platform built using **Next.js 14 A
 - **Frontend**: Next.js 14 (App Router), Tailwind CSS, TypeScript, Shadcn/UI, Lucide Icons
 - **Backend**: Prisma ORM, PostgreSQL, Server Actions & API Routes
 - **Auth**: NextAuth.js (Email + OAuth - GitHub, Google)
-- **Upload**: Cloudinary (planned)
-- **Email**: Resend (via SMTP planned)
+- **Upload**: Cloudinary 
+- **Email**: Resend (but currently using SMTP of google )
 
 ---
 
@@ -31,15 +31,15 @@ EduDash is a full-stack, role-based coaching platform built using **Next.js 14 A
 - [x] Role stored in DB using Prisma Enum (`STUDENT`, `TEACHER`, `ADMIN`)
 - [x] Approved teacher logic via `approved` boolean
 - [x] Class creation form with unique class code
-- [ ] View and manage created classes
-- [ ] Upload lectures and notes to class/subject
+- [x] View and manage created classes
+- [x] Upload lectures and notes to class/subject
 - [ ] Create and assign tests to specific classes
 - [ ] See student performance & analytics
 
 ### 🎓 Student Panel - Phase 1 (🛠 In Progress)
 - [x] Role-based dashboard UI
-- [ ] Join class using unique code
-- [ ] View lectures and notes
+- [x] Join class using unique code
+- [x] View lectures and notes
 - [ ] Attempt tests and view score breakdown
 - [ ] Track progress & analytics
 
@@ -85,9 +85,9 @@ EduDash is a full-stack, role-based coaching platform built using **Next.js 14 A
 
 ## 🔜 Upcoming Features
 
-- [ ] Subject-wise class management
-- [ ] Video lecture upload and streaming (Cloudinary or ImageKit)
-- [ ] File upload for notes
+- [x] Subject-wise class management
+- [x] Video lecture upload and streaming (Cloudinary or ImageKit)
+- [x] File upload for notes
 - [ ] Automated test creation and evaluation
 - [ ] Notifications and announcements panel
 - [ ] Admin panel for approving teachers
@@ -95,27 +95,7 @@ EduDash is a full-stack, role-based coaching platform built using **Next.js 14 A
 
 ---
 
-## 🧪 Local Development
 
-1. Clone the repo  
-2. Set up your `.env` file:
-```env
-DATABASE_URL=postgresql://...
-RESEND_API_KEY=...
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-```
-
-3. Run:
-```bash
-npm install
-npx prisma db push
-npm run dev
-```
-
----
 
 ## 📊 Progress Tracker
 
@@ -126,7 +106,7 @@ npm run dev
 | Role Management   | ✅ Complete      |
 | Teacher Dashboard | 🛠 In Progress   |
 | Student Dashboard | 🛠 In Progress   |
-| File Upload       | 🚧 Planned       |
+| File Upload       |  complete       |
 | Test System       | 🚧 Planned       |
 | Admin Panel       | 🚧 Planned       |
 
