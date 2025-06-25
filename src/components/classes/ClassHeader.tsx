@@ -36,7 +36,7 @@ export const ClassHeader = ({ label, headerFor, classID, subjectID,isStudent }: 
           )}
         </>
       )}
-      {headerFor === 'class' && <JoinClassDialog />}
+      {isStudent && headerFor === 'class' && <JoinClassDialog />}
       </div>
 
     </div>
