@@ -53,10 +53,9 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
     });
   }, [files, sortOrder]);
 
-  const filesToShow = useMemo<File[]>(
-    () => sortedFiles.slice(0, visibleCount),
-    [sortedFiles, visibleCount]
-  );
+  const filesToShow = useMemo<File[]>(() => {
+    return sortedFiles.slice(0, visibleCount);
+  }, [sortedFiles, visibleCount]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,37 +64,39 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
           setVisibleCount((prev) => Math.min(prev + 10, sortedFiles.length));
         }
       },
-      { threshold: 1 }
+      { threshold: 0.1 }
     );
-    if (loaderRef.current) observer.observe(loaderRef.current);
+
+    const currentRef = loaderRef.current;
+    if (currentRef) observer.observe(currentRef);
     return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
+      if (currentRef) observer.unobserve(currentRef);
     };
   }, [sortedFiles.length]);
 
   return (
-    <div className="p-4 max-h-[75vh] overflow-y-auto">
+    <div className="p-4 max-h-screen overflow-y-auto">
       {/* Sort Dropdown */}
       <div className="mb-6 flex justify-end">
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
-          className="px-4 py-2 rounded-md border text-sm dark:bg-gray-800 dark:text-white bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-2 w-full sm:w-auto rounded-md border text-sm dark:bg-gray-800 dark:text-white bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="newest">Sort: Newest First</option>
           <option value="oldest">Sort: Oldest First</option>
         </select>
       </div>
 
-      {/* Masonry Layout */}
-      <div className="flex flex-wrap gap-6">
+      {/* Responsive Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {filesToShow.map((file) => (
           <Link
             key={file.id}
             href={`/watch/${file.id}`}
-            className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
+            className="group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
           >
-            <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
               {file.fileUrl.match(/\.(mp4|mov|avi)$/i) ? (
                 <video
                   className="w-full h-full object-cover"
@@ -107,7 +108,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
                 <Image
                   src={file.fileUrl}
                   alt={file.title}
-                  className="w-full h-full object-cover"
+                  className="object-cover"
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
