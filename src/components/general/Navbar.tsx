@@ -2,7 +2,7 @@
 import Image from "next/image";
 import React from "react";
 import { ModeToggle } from "./mode-toggle";
-import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import {  SidebarTrigger } from "../ui/sidebar";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "../auth/SignoutButton";
 import { UserButton } from "../auth/UserButton";

@@ -1,43 +1,51 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import type { JSX } from "react";
 import { FaFilePdf, FaFileAlt, FaImage, FaVideo } from "react-icons/fa";
+
+type Teacher = {
+  name: string | null;
+  image?: string | null;
+};
 
 type File = {
   id: string;
   title: string;
   fileUrl: string;
   createdAt: string;
-  teacher: {
-    name: string | null;
-    image?: string | null;
-  };
+  teacher: Teacher;
 };
 
-const getFileType = (url: string) => {
-  if (url.match(/\.(mp4|mov|avi)$/)) return "Video";
-  if (url.match(/\.(jpg|jpeg|png|webp)$/)) return "Image";
-  if (url.match(/\.pdf$/)) return "PDF";
+type FileListProps = {
+  files: File[];
+};
+
+const getFileType = (url: string): "Video" | "Image" | "PDF" | "Other" => {
+  if (url.match(/\.(mp4|mov|avi)$/i)) return "Video";
+  if (url.match(/\.(jpg|jpeg|png|webp)$/i)) return "Image";
+  if (url.match(/\.pdf$/i)) return "PDF";
   return "Other";
 };
 
-const getIcon = (url: string) => {
-  if (url.match(/\.(mp4|mov|avi)$/))
+const getIcon = (url: string): JSX.Element => {
+  if (url.match(/\.(mp4|mov|avi)$/i))
     return <FaVideo className="text-xl text-blue-500" />;
-  if (url.match(/\.(jpg|jpeg|png|webp)$/))
+  if (url.match(/\.(jpg|jpeg|png|webp)$/i))
     return <FaImage className="text-xl text-green-500" />;
-  if (url.match(/\.pdf$/))
+  if (url.match(/\.pdf$/i))
     return <FaFilePdf className="text-xl text-red-500" />;
   return <FaFileAlt className="text-xl text-gray-500" />;
 };
 
-export const FileList = ({ files }: { files: File[] }) => {
+export const FileList: React.FC<FileListProps> = ({ files }) => {
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState<number>(10);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  const sortedFiles = useMemo(() => {
+  const sortedFiles = useMemo<File[]>(() => {
     return [...files].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -45,7 +53,7 @@ export const FileList = ({ files }: { files: File[] }) => {
     });
   }, [files, sortOrder]);
 
-  const filesToShow = useMemo(
+  const filesToShow = useMemo<File[]>(
     () => sortedFiles.slice(0, visibleCount),
     [sortedFiles, visibleCount]
   );
@@ -80,7 +88,7 @@ export const FileList = ({ files }: { files: File[] }) => {
       </div>
 
       {/* Masonry Layout */}
-      <div className="flex flex-wrap  gap-6">
+      <div className="flex flex-wrap gap-6">
         {filesToShow.map((file) => (
           <Link
             key={file.id}
@@ -88,18 +96,20 @@ export const FileList = ({ files }: { files: File[] }) => {
             className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
           >
             <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              {file.fileUrl.match(/\.(mp4|mov|avi)$/) ? (
+              {file.fileUrl.match(/\.(mp4|mov|avi)$/i) ? (
                 <video
                   className="w-full h-full object-cover"
                   src={file.fileUrl}
                   muted
                   preload="metadata"
                 />
-              ) : file.fileUrl.match(/\.(jpg|jpeg|png|webp)$/) ? (
-                <img
+              ) : file.fileUrl.match(/\.(jpg|jpeg|png|webp)$/i) ? (
+                <Image
                   src={file.fileUrl}
                   alt={file.title}
                   className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
               ) : (
                 <div className="text-gray-600 dark:text-white p-6">

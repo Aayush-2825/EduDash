@@ -9,7 +9,11 @@ interface Props {
   params: { fileId: string };
 }
 
-export default async function WatchPage({ params }: Props) {
+export default async function WatchPage({
+  params,
+}: {
+  params: Promise<{ fileId: string }>
+}) {
   const paramObj = await params;
   const file = await db.file.findUnique({
     where: { id: paramObj.fileId },

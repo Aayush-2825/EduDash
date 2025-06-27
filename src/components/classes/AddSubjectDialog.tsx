@@ -26,7 +26,6 @@ import { Button } from "../ui/button";
 import FormError from "../auth/FormError";
 import FormSuccess from "../auth/FormSuccess";
 import { AddSubject } from "@/actions/add-subject";
-import { useParams } from "next/navigation";
 
 export const AddSubjectDialog = ({
   classID,

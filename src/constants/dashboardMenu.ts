@@ -1,9 +1,7 @@
 import {
   LayoutDashboard,
-  TvMinimal,
   NotebookPen,
   ClipboardList,
-  Settings,
   UserRoundPen,
   FilePlus2,
   BarChart3,

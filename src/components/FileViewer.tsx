@@ -1,6 +1,7 @@
 "use client";
 
 import { CldVideoPlayer } from "next-cloudinary";
+import Image from "next/image";
 
 interface FileViewerProps {
   title: string;
@@ -33,7 +34,7 @@ export const FileViewer = ({ title, publicId, fileUrl }: FileViewerProps) => {
 
   if (isImage) {
     return (
-      <img
+      <Image
         src={fileUrl}
         alt={title}
         className="max-h-[70vh] w-full object-contain rounded-lg shadow"

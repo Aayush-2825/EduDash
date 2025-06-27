@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/general/AppSidebar"
 import { Navbar } from "@/components/general/Navbar"
 import { dashboardTeacherMenu } from "@/constants/dashboardMenu"
