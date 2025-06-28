@@ -25,7 +25,7 @@ type FileListProps = {
 const getFileType = (url: string): "Video" | "Image" | "PDF" | "Other" => {
   if (url.match(/\.(mp4|mov|avi)$/i)) return "Video";
   if (url.match(/\.(jpg|jpeg|png|webp)$/i)) return "Image";
-  if (url.match(/\.pdf$/i)) return "PDF";
+  if (url.match(/\.pdf$/i) || url.includes("application/pdf")) return "PDF";
   return "Other";
 };
 
@@ -42,10 +42,7 @@ const getIcon = (type: string): React.JSX.Element => {
   }
 };
 
-const ThumbnailImage: React.FC<{ src: string; alt: string }> = ({
-  src,
-  alt,
-}) => {
+const ThumbnailImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
   const [error, setError] = useState(false);
   if (error) {
     return <FaVideo className="text-4xl text-blue-500" />;
@@ -76,10 +73,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
     });
   }, [files, sortOrder]);
 
-  const filesToShow = useMemo(
-    () => sortedFiles.slice(0, visibleCount),
-    [sortedFiles, visibleCount]
-  );
+  const filesToShow = useMemo(() => sortedFiles.slice(0, visibleCount), [sortedFiles, visibleCount]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -98,7 +92,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
   }, [sortedFiles.length]);
 
   return (
-    <div className="p-4 max-h-[80vh] overflow-y-auto">
+    <div className="p-4 max-h-screen overflow-y-auto">
       {/* Sort Dropdown */}
       <div className="mb-6 flex justify-end">
         <select
@@ -119,9 +113,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
           const isVideo = type === "Video";
           const thumbnailUrl =
             isVideo && file.fileUrl.includes("res.cloudinary.com")
-              ? file.fileUrl
-                  .replace(/\.(mp4|mov|avi)$/i, ".jpg")
-                  .replace("/upload/", "/upload/so_1/")
+              ? file.fileUrl.replace(/\.(mp4|mov|avi)$/i, ".jpg").replace("/upload/", "/upload/so_1/")
               : "";
 
           const cardContent = (
@@ -164,17 +156,25 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
             </>
           );
 
-          return type === "PDF" || type === "Other" ? (
-            <a
-            key={file.id}
-              href={`https://docs.google.com/viewer?url=${encodeURIComponent(file.fileUrl)}&embedded=true`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
-            >
-              {cardContent}
-            </a>
-          ) : (
+          // 📄 Open PDF in Google Viewer (browser tab)
+          if (type === "PDF") {
+            const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(file.fileUrl)}&embedded=true`;
+
+            return (
+              <a
+                key={file.id}
+                href={viewerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
+              >
+                {cardContent}
+              </a>
+            );
+          }
+
+          // 🎬 Video/Image open in internal player route
+          return (
             <Link
               key={file.id}
               href={`/watch/${file.id}`}
@@ -188,9 +188,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
 
       {/* Loader Placeholder */}
       <div ref={loaderRef} className="py-6 text-center text-gray-400 text-sm">
-        {visibleCount < sortedFiles.length
-          ? "Loading more..."
-          : "No more files"}
+        {visibleCount < sortedFiles.length ? "Loading more..." : "No more files"}
       </div>
     </div>
   );
