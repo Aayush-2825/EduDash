@@ -92,7 +92,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
   }, [sortedFiles.length]);
 
   return (
-    <div className="p-4 max-h-screen overflow-y-auto">
+    <div className="p-4 max-h-[80vh] overflow-y-auto">
       {/* Sort Dropdown */}
       <div className="mb-6 flex justify-end">
         <select
@@ -157,7 +157,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
           );
 
           // 📄 Open PDF in Google Viewer (browser tab)
-          if (type === "PDF") {
+          if (type === "PDF" || type== 'Other') {
             const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(file.fileUrl)}&embedded=true`;
 
             return (

@@ -49,7 +49,7 @@ export const UploadAction = async (
     } else {
       upload = await cloudinary.uploader.upload(file, {
         public_id: publicId,
-        resource_type: type === "IMAGE" ? "image" : "raw",
+        resource_type: type === "IMAGE" ? "image" : "auto",
         folder: `edu/${type.toLowerCase()}s`,
       });
     }

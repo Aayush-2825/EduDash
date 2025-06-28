@@ -20,8 +20,11 @@ model User {
   role          Role      @default(STUDENT)
 
   accounts       Account[]
-  teacherClasses TeacherClass[] @relation("TeacherClasses")
-  studentClasses Class[]        @relation("StudentClass")
+  teacherClasses TeacherClass[]   @relation("TeacherClasses")
+  studentClasses Class[]          @relation("StudentClass")
+  questions      Question[]
+  submissions    TestSubmission[]
+  testsCreated   Test[]           @relation("CreatedTests")
 
   files File[]
 
@@ -81,30 +84,31 @@ model Class {
   students    User[]         @relation("StudentClass")
   subjects    Subject[]
   teachers    TeacherClass[]
+  tests       Test[]
   code        String         @unique
-  
 }
 
 model Subject {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   classId   String
-  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  class     Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
   files     File[]
-  
+  tests     Test[]
+  questions Question[]
 }
 
 model File {
-  id         String   @id @default(cuid())
-  title      String
-  fileUrl    String
-  fileType   FileType
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  fileType  FileType
   publicId  String
-  subjectId  String
-  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  teacherId  String
-  teacher    User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 enum FileType {
@@ -123,3 +127,81 @@ model TeacherClass {
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 }
 
+model Test {
+  id        String   @id @default(cuid())
+  title     String
+  duration  Int // in minutes
+  classId   String
+  subjectId String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  class       Class            @relation(fields: [classId], references: [id])
+  subject     Subject          @relation(fields: [subjectId], references: [id])
+  teacher     User             @relation("CreatedTests", fields: [createdBy], references: [id])
+  questions   TestQuestion[]
+  submissions TestSubmission[]
+}
+
+model TestQuestion {
+  id         String @id @default(cuid())
+  testId     String
+  questionId String
+
+  test     Test     @relation(fields: [testId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model Question {
+  id        String         @id @default(cuid())
+  type      QuestionType
+  source    QuestionSource
+  subjectId String
+  createdBy String? // null = PYQ
+
+  question String
+  optionA  String?
+  optionB  String?
+  optionC  String?
+  optionD  String?
+  correct  String
+
+  year      Int?
+  exam      ExamType?
+  createdAt DateTime  @default(now())
+
+  subject Subject        @relation(fields: [subjectId], references: [id])
+  teacher User?          @relation(fields: [createdBy], references: [id])
+  tests   TestQuestion[]
+}
+
+model TestSubmission {
+  id          String    @id @default(cuid())
+  studentId   String
+  testId      String
+  answers     Json
+  score       Int
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+
+  student User @relation(fields: [studentId], references: [id])
+  test    Test @relation(fields: [testId], references: [id])
+}
+
+enum QuestionType {
+  SINGLE_CORRECT
+  MULTI_CORRECT
+  INTEGER
+  NUMERIC
+}
+
+enum QuestionSource {
+  PYQ
+  CUSTOM
+}
+
+enum ExamType {
+  JEE_MAIN
+  JEE_ADVANCED
+  NEET
+}
