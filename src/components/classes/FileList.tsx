@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import type { JSX } from "react";
 import { FaFilePdf, FaFileAlt, FaImage, FaVideo } from "react-icons/fa";
 
 type Teacher = {
@@ -30,14 +29,38 @@ const getFileType = (url: string): "Video" | "Image" | "PDF" | "Other" => {
   return "Other";
 };
 
-const getIcon = (url: string): JSX.Element => {
-  if (url.match(/\.(mp4|mov|avi)$/i))
-    return <FaVideo className="text-xl text-blue-500" />;
-  if (url.match(/\.(jpg|jpeg|png|webp)$/i))
-    return <FaImage className="text-xl text-green-500" />;
-  if (url.match(/\.pdf$/i))
-    return <FaFilePdf className="text-xl text-red-500" />;
-  return <FaFileAlt className="text-xl text-gray-500" />;
+const getIcon = (type: string): React.JSX.Element => {
+  switch (type) {
+    case "Video":
+      return <FaVideo className="text-4xl text-blue-500" />;
+    case "Image":
+      return <FaImage className="text-4xl text-green-500" />;
+    case "PDF":
+      return <FaFilePdf className="text-4xl text-red-500" />;
+    default:
+      return <FaFileAlt className="text-4xl text-gray-500" />;
+  }
+};
+
+const ThumbnailImage: React.FC<{ src: string; alt: string }> = ({
+  src,
+  alt,
+}) => {
+  const [error, setError] = useState(false);
+  if (error) {
+    return <FaVideo className="text-4xl text-blue-500" />;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="(max-width: 768px) 100vw, 33vw"
+      className="object-cover"
+      onError={() => setError(true)}
+    />
+  );
 };
 
 export const FileList: React.FC<FileListProps> = ({ files }) => {
@@ -45,7 +68,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
   const [visibleCount, setVisibleCount] = useState<number>(10);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  const sortedFiles = useMemo<File[]>(() => {
+  const sortedFiles = useMemo(() => {
     return [...files].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -53,7 +76,7 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
     });
   }, [files, sortOrder]);
 
-  const filesToShow = useMemo<File[]>(
+  const filesToShow = useMemo(
     () => sortedFiles.slice(0, visibleCount),
     [sortedFiles, visibleCount]
   );
@@ -65,81 +88,102 @@ export const FileList: React.FC<FileListProps> = ({ files }) => {
           setVisibleCount((prev) => Math.min(prev + 10, sortedFiles.length));
         }
       },
-      { threshold: 1 }
+      { threshold: 0.1 }
     );
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    const ref = loaderRef.current;
+    if (ref) observer.observe(ref);
     return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
+      if (ref) observer.unobserve(ref);
     };
   }, [sortedFiles.length]);
 
   return (
-    <div className="p-4 max-h-[75vh] overflow-y-auto">
+    <div className="p-4 max-h-[80vh] overflow-y-auto">
       {/* Sort Dropdown */}
       <div className="mb-6 flex justify-end">
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
-          className="px-4 py-2 rounded-md border text-sm dark:bg-gray-800 dark:text-white bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-2 w-full sm:w-auto rounded-md border text-sm dark:bg-gray-800 dark:text-white bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="newest">Sort: Newest First</option>
           <option value="oldest">Sort: Oldest First</option>
         </select>
       </div>
 
-      {/* Masonry Layout */}
-      <div className="flex flex-wrap gap-6">
-        {filesToShow.map((file) => (
-          <Link
-            key={file.id}
-            href={`/watch/${file.id}`}
-            className="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
-          >
-            <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              {file.fileUrl.match(/\.(mp4|mov|avi)$/i) ? (
-                <video
-                  className="w-full h-full object-cover"
-                  src={file.fileUrl}
-                  muted
-                  preload="metadata"
-                />
-              ) : file.fileUrl.match(/\.(jpg|jpeg|png|webp)$/i) ? (
-                <Image
-                  src={file.fileUrl}
-                  alt={file.title}
-                  className="w-full h-full object-cover"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-              ) : (
-                <div className="text-gray-600 dark:text-white p-6">
-                  {getIcon(file.fileUrl)}
-                </div>
-              )}
-            </div>
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filesToShow.map((file) => {
+          const type = getFileType(file.fileUrl);
+          const isImage = type === "Image";
+          const isVideo = type === "Video";
+          const thumbnailUrl =
+            isVideo && file.fileUrl.includes("res.cloudinary.com")
+              ? file.fileUrl
+                  .replace(/\.(mp4|mov|avi)$/i, ".jpg")
+                  .replace("/upload/", "/upload/so_1/")
+              : "";
 
-            <div className="p-3 space-y-1">
-              <h3 className="text-sm font-medium text-gray-800 dark:text-white line-clamp-2">
-                {file.title}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {file.teacher?.name || "Unknown"}
-              </p>
-              <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500">
-                <span>
-                  {new Intl.DateTimeFormat("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  }).format(new Date(file.createdAt))}
-                </span>
-                <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 text-[10px] font-medium">
-                  {getFileType(file.fileUrl)}
-                </span>
+          const cardContent = (
+            <>
+              <div className="relative aspect-video w-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {isImage ? (
+                  <Image
+                    src={file.fileUrl}
+                    alt={file.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                ) : isVideo && thumbnailUrl ? (
+                  <ThumbnailImage src={thumbnailUrl} alt={file.title} />
+                ) : (
+                  getIcon(type)
+                )}
               </div>
-            </div>
-          </Link>
-        ))}
+              <div className="p-3 space-y-1">
+                <h3 className="text-sm font-medium text-gray-800 dark:text-white line-clamp-2">
+                  {file.title}
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {file.teacher?.name || "Unknown"}
+                </p>
+                <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500">
+                  <span>
+                    {new Intl.DateTimeFormat("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    }).format(new Date(file.createdAt))}
+                  </span>
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 text-[10px] font-medium">
+                    {type}
+                  </span>
+                </div>
+              </div>
+            </>
+          );
+
+          return type === "PDF" || type === "Other" ? (
+            <a
+            key={file.id}
+              href={`https://docs.google.com/viewer?url=${encodeURIComponent(file.fileUrl)}&embedded=true`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
+            >
+              {cardContent}
+            </a>
+          ) : (
+            <Link
+              key={file.id}
+              href={`/watch/${file.id}`}
+              className="group rounded-xl overflow-hidden border bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-all duration-300"
+            >
+              {cardContent}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Loader Placeholder */}
